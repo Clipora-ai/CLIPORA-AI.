@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, HttpUrl
+from urllib.parse import urlparse
 
 app = FastAPI(title="CLIPORA AI")
 
@@ -16,6 +17,22 @@ class VideoRequest(BaseModel):
     clip_length: int = 60
     language: str = "English"
 
+
+def validate_youtube_url(url):
+    parsed = urlparse(str(url))
+    host = parsed.netloc.lower().split(":")[0]
+
+    allowed_hosts = {
+        "youtube.com",
+        "www.youtube.com",
+        "m.youtube.com",
+        "youtu.be",
+        "www.youtube-nocookie.com",
+    }
+
+    return host in allowed_hosts
+
+
 @app.get("/")
 def home():
     return {
@@ -23,17 +40,25 @@ def home():
         "status": "success"
     }
 
+
 @app.get("/health")
 def health():
     return {"status": "healthy"}
 
+
 @app.post("/process")
 def process_video(request: VideoRequest):
+
+    if not validate_youtube_url(str(request.video_url)):
+        return {
+            "status": "error",
+            "message": "Please enter a valid YouTube URL."
+        }
+
     return {
-        "status": "received",
+        "status": "accepted",
         "video_url": str(request.video_url),
         "clip_length": request.clip_length,
         "language": request.language,
-        "message": "Video request received. Processing engine is not installed yet."
-    }
-  
+        "message": "YouTube link validated. Authorized video access is the next step."
+}
