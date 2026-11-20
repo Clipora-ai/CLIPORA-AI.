@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CLIPORA AI — Short-Form Video Studio</title>
+  <style>
+    :root {
+      --bg: #080713;
+      --panel: #111025;
+      --panel-2: #17152f;
+      --line: rgba(190, 169, 255, .19);
+      --text: #f8f6ff;
+      --muted: #b9b4cc;
+      --purple: #a855f7;
+      --pink: #ec36c8;
+      --cyan: #54d8ef;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(ellipse at 80% 12%, rgba(116, 45, 190, .28), transparent 38%),
+        radial-gradient(ellipse at 10% 45%, rgba(69, 40, 130, .18), transparent 42%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .wrap { width: min(100% - 32px, 1080px); margin: auto; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 0; gap: 16px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; letter-spacing: .4px; font-size: 23px; }
+    .spark { color: #f3d7ff; font-size: 27px; }
+    .brand span:last-child { color: #c084fc; }
+    .tagline { font-size: 10px; letter-spacing: 3px; color: #d4cce8; margin-top: 3px; }
+    .studio {
+      border: 1px solid var(--line); background: rgba(30, 24, 58, .85);
+      color: white; border-radius: 14px; padding: 12px 17px; font-weight: 750;
+    }
+    .hero { text-align: center; padding: 56px 0 60px; }
+    .eyebrow {
+      display: inline-block; border: 1px solid rgba(192,132,252,.5);
+      background: rgba(117, 61, 175, .2); color: #ead8ff;
+      border-radius: 99px; padding: 10px 17px; font-size: 12px;
+      font-weight: 800; letter-spacing: .8px;
+    }
+    h1 { font-size: clamp(42px, 8vw, 76px); line-height: 1.02; margin: 25px 0 18px; letter-spacing: -2.5px; }
+    .gradient { background: linear-gradient(90deg, #e9a5ff, #d47aff 45%, #55d9ef); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero p { max-width: 670px; margin: auto; color: #ded9eb; font-size: clamp(16px, 2.4vw, 21px); line-height: 1.55; }
+    .actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; margin-top: 28px; }
+    .primary, .secondary {
+      border: 0; border-radius: 17px; padding: 16px 24px; font-weight: 850;
+      color: white; min-width: 180px; text-decoration: none; display: inline-flex;
+      align-items: center; justify-content: center; gap: 8px;
+    }
+    .primary { background: linear-gradient(105deg, #a855f7, #ec36c8); box-shadow: 0 10px 35px rgba(202, 56, 220, .2); }
+    .secondary { background: rgba(35, 31, 61, .9); border: 1px solid var(--line); }
+    section { scroll-margin-top: 18px; }
+    .section-title { text-align: center; font-size: clamp(29px, 5vw, 43px); margin: 10px 0 8px; }
+    .section-sub { text-align: center; color: var(--muted); margin: 0 0 28px; }
+    .card {
+      border: 1px solid var(--line); background: linear-gradient(145deg, rgba(22,20,43,.97), rgba(12,11,27,.97));
+      border-radius: 24px; padding: clamp(18px, 4vw, 30px); box-shadow: 0 20px 70px rgba(0,0,0,.2);
+    }
+    .studio-section { padding: 12px 0 58px; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 22px; }
+    .tab {
+      flex: 1; padding: 14px 10px; border-radius: 14px; color: #e9e3f5;
+      background: #151329; border: 1px solid var(--line); font-weight: 800;
+    }
+    .tab.active { border: 1.5px solid #bd78ff; background: rgba(132, 72, 199, .2); box-shadow: inset 0 0 0 1px rgba(189,120,255,.15); }
+    .field { margin: 19px 0; }
+    label { display: block; font-weight: 800; margin-bottom: 10px; color: #f3efff; }
+    input[type="url"], input[type="text"], select {
+      width: 100%; color: white; background: #0b0a19; border: 1px solid rgba(190,169,255,.27);
+      border-radius: 15px; padding: 16px; outline: none;
+    }
+    input:focus, select:focus { border-color: #bd78ff; box-shadow: 0 0 0 3px rgba(168,85,247,.14); }
+    input::placeholder { color: #817b96; }
+    .hint { color: #aaa3bd; font-size: 13px; line-height: 1.5; margin-top: 9px; }
+    .choice-list { display: grid; gap: 10px; }
+    .choice {
+      width: 100%; text-align: center; border: 1px solid var(--line); border-radius: 14px;
+      padding: 16px; background: #121126; color: #f4efff; font-weight: 800;
+    }
+    .choice.selected { border: 2px solid #b66cff; background: rgba(112,57,176,.2); }
+    .generate { width: 100%; margin-top: 12px; padding: 18px; font-size: 18px; }
+    .status {
+      display: none; margin-top: 18px; padding: 18px; border-radius: 15px;
+      border: 1px solid rgba(99, 102, 241, .25); background: rgba(34, 40, 86, .35);
+      color: #e9e5ff; line-height: 1.55;
+    }
+    .status.show { display: block; }
+    .progress { height: 7px; background: #292443; border-radius: 99px; margin-top: 13px; overflow: hidden; }
+    .progress span { display: block; width: 100%; height: 100%; background: linear-gradient(90deg,#a855f7,#ec36c8); }
+    .notice { color: #b9b2c8; text-align: center; font-size: 13px; line-height: 1.5; margin: 18px auto 0; max-width: 700px; }
+    .samples { padding: 0 0 60px; }
+    .sample-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 15px; margin-top: 25px; }
+    .sample { display: flex; align-items: center; gap: 16px; padding: 16px; border: 1px solid var(--line); border-radius: 19px; background: rgba(17,16,37,.9); }
+    .thumb {
+      flex: 0 0 115px; aspect-ratio: 9/13; border-radius: 14px; display: grid; place-items: center;
+      text-align: center; padding: 10px; font-weight: 950; font-size: 13px; line-height: 1.25;
+      background: linear-gradient(155deg, #39206f, #7e2eb0 65%, #24104d);
+    }
+    .play { display: block; font-size: 25px; margin-bottom: 8px; }
+    .sample h3 { margin: 0 0 7px; font-size: 18px; }
+    .sample p { color: var(--muted); margin: 0 0 12px; font-size: 14px; }
+    .unavailable { color: #c8c1d7; background: #201d35; border: 1px solid var(--line); border-radius: 12px; padding: 11px; font-weight: 700; font-size: 13px; text-align: center; }
+    .pricing { padding: 0 0 65px; }
+    .plans { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-top: 25px; }
+    .plan { border: 1px solid var(--line); border-radius: 19px; background: #121126; padding: 22px; }
+    .plan h3 { margin: 0 0 8px; }
+    .price { font-size: 30px; font-weight: 900; margin: 8px 0; }
+    .plan p, .plan li { color: var(--muted); font-size: 14px; line-height: 1.6; }
+    footer { border-top: 1px solid var(--line); padding: 24px 0 35px; text-align: center; color: #918aa5; font-size: 13px; }
+    @media (max-width: 650px) {
+      .hero { padding: 38px 0 48px; }
+      .sample-grid, .plans { grid-template-columns: 1fr; }
+      .sample { align-items: flex-start; }
+      .thumb { flex-basis: 105px; }
+      .brand { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="brand"><span class="spark">✦</span> CLIPORA <span>AI</span></div>
+        <div class="tagline">CREATE MORE. EDIT LESS.</div>
+      </div>
+      <button class="studio" onclick="document.querySelector('#create').scrollIntoView({behavior:'smooth'})">Open Studio</button>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="eyebrow">✦ YOUR AI SHORT-FORM VIDEO STUDIO</div>
+        <h1>One long video.<br><span class="gradient">Multiple short clips.</span></h1>
+        <p>Turn your long-form content into scroll-stopping short videos for Reels, Shorts and TikTok.</p>
+        <div class="actions">
+          <a class="primary" href="#create">Start creating →</a>
+          <a class="secondary" href="#how">See how it works</a>
+        </div>
+      </section>
+
+      <section class="studio-section" id="create">
+        <h2 class="section-title">Create your clips</h2>
+        <p class="section-sub">Add a video and customize your output.</p>
+        <div class="card">
+          <div class="tabs">
+            <button class="tab active" id="linkTab" onclick="switchMode('link')">↗ Video link</button>
+            <button class="tab" id="uploadTab" onclick="switchMode('upload')">＋ Upload video</button>
+          </div>
+          <div id="linkPanel">
+            <div class="field">
+              <label for="videoUrl">Video URL</label>
+              <input id="videoUrl" type="url" placeholder="Paste a video link here (https://...)" />
+              <div class="hint">Only use videos you own or have permission to edit. URL importing requires a compatible source integration.</div>
+            </div>
+          </div>
+          <div id="uploadPanel" hidden>
+            <div class="field">
+              <label for="videoFile">Choose video file</label>
+              <input id="videoFile" type="file" accept="video/*" />
+              <div class="hint">Choose a video stored on your device. This prototype does not upload it to a server.</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Preferred clip length</label>
+            <div class="choice-list" id="lengthChoices">
+              <button class="choice" onclick="choose(this)">15–30 sec</button>
+              <button class="choice selected" onclick="choose(this)">30–60 sec</button>
+              <button class="choice" onclick="choose(this)">60–90 sec</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="caption">Caption style</label>
+            <select id="caption">
+              <option>Animated captions</option>
+              <option>Bold captions</option>
+              <option>Minimal captions</option>
+              <option>No captions</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="language">Language</label>
+            <select id="language">
+              <option>Auto-detect</option>
+              <option>English</option>
+              <option>Hindi</option>
+              <option>Hinglish</option>
+            </select>
+          </div>
+          <button class="primary generate" onclick="generateDemo()">✦ Generate demo clips</button>
+          <div class="status" id="status">
+            <strong>Demo ready — sample clips shown below.</strong>
+            <div class="progress"><span></span></div>
+          </div>
+          <p class="notice">Prototype demo: sample previews only. Real AI video processing is not connected yet.</p>
+        </div>
+      </section>
+
+      <section class="samples" id="how">
+        <h2 class="section-title">Your sample clips</h2>
+        <p class="section-sub">Example clip cards from the demo workflow.</p>
+        <div class="sample-grid">
+          <article class="sample"><div class="thumb"><div><span class="play">▶</span>THIS CHANGES EVERYTHING</div></div><div><h3>The big idea</h3><p>30–60 seconds · Demo preview</p><div class="unavailable">Preview unavailable in demo</div></div></article>
+          <article class="sample"><div class="thumb"><div><span class="play">▶</span>HERE IS THE KEY</div></div><div><h3>The key takeaway</h3><p>30–60 seconds · Demo preview</p><div class="unavailable">Preview unavailable in demo</div></div></article>
+          <article class="sample"><div class="thumb"><div><span class="play">▶</span>DON'T MISS THIS</div></div><div><h3>The best moment</h3><p>30–60 seconds · Demo preview</p><div class="unavailable">Preview unavailable in demo</div></div></article>
+          <article class="sample"><div class="thumb"><div><span class="play">▶</span>ONE SIMPLE TIP</div></div><div><h3>Quick tip</h3><p>30–60 seconds · Demo preview</p><div class="unavailable">Preview unavailable in demo</div></div></article>
+        </div>
+      </section>
+
+      <section class="pricing">
+        <h2 class="section-title">Simple pricing</h2>
+        <p class="section-sub">Plans shown for the website prototype.</p>
+        <div class="plans">
+          <div class="plan"><h3>Free</h3><div class="price">₹0</div><p>Try the demo experience.</p><ul><li>Sample clip cards</li><li>Basic settings</li></ul></div>
+          <div class="plan"><h3>Creator</h3><div class="price">₹499<span style="font-size:14px">/mo</span></div><p>For regular creators.</p><ul><li>Planned clip workflow</li><li>Caption customization</li></ul></div>
+          <div class="plan"><h3>Pro</h3><div class="price">₹999<span style="font-size:14px">/mo</span></div><p>For advanced creator workflows.</p><ul><li>Planned advanced tools</li><li>Priority processing concept</li></ul></div>
+        </div>
+      </section>
+    </main>
+    <footer>© 2026 CLIPORA AI · Prototype website</footer>
+  </div>
+  <script>
+    function switchMode(mode) {
+      const link = mode === 'link';
+      document.getElementById('linkPanel').hidden = !link;
+      document.getElementById('uploadPanel').hidden = link;
+      document.getElementById('linkTab').classList.toggle('active', link);
+      document.getElementById('uploadTab').classList.toggle('active', !link);
+    }
+    function choose(button) {
+      document.querySelectorAll('#lengthChoices .choice').forEach(b => b.classList.remove('selected'));
+      button.classList.add('selected');
+    }
+    function generateDemo() {
+      const url = document.getElementById('videoUrl').value.trim();
+      const file = document.getElementById('videoFile').files[0];
+      const uploadMode = document.getElementById('uploadPanel').hidden === false;
+      if (uploadMode && !file) {
+        alert('Please choose a video file first.');
+        return;
+      }
+      if (!uploadMode && !url) {
+        alert('Please paste a video URL first.');
+        document.getElementById('videoUrl').focus();
+        return;
+      }
+      const status = document.getElementById('status');
+      status.classList.add('show');
+      status.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  </script>
+</body>
+</html>
