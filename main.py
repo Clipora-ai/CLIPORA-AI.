@@ -5,7 +5,7 @@ from urllib.parse import urlparse, parse_qs
 from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
 import json
-
+import re
 app = FastAPI(title="CLIPORA AI")
 
 app.add_middleware(
