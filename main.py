@@ -71,7 +71,7 @@ def video_info(request: VideoRequest):
             "channel": data.get("author_name"),
             "thumbnail": data.get("thumbnail_url"),
             "message": "Video information retrieved successfully."
-        }
+    }
 
     except (HTTPError, URLError, TimeoutError):
         raise HTTPException(
