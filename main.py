@@ -63,11 +63,13 @@ def video_info(request: VideoRequest):
     try:
         with urlopen(oembed_url, timeout=15) as response:
             data = json.loads(response.read().decode("utf-8"))
-           
+               iframe_html = data.get("html", "")
+        title_match = re.search(r'<iframe[^>]*\btitle="([^"]+)"', iframe_html)
+        video_title = title_match.group(1) if title_match else "Title unavailable"
         return {
             "status": "success",
             "video_id": video_id,
-            "title": data.get("title") or "Title unavailable",
+            "title": video_title,
             "channel": data.get("author_name") or "Channel unavailable",
             "thumbnail": data.get("thumbnail_url") or None,
             "message": "Video information retrieved successfully."
