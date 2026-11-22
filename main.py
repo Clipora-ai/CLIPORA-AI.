@@ -1,7 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, HttpUrl
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
+from urllib.request import urlopen
+from urllib.error import HTTPError, URLError
+import json
 
 app = FastAPI(title="CLIPORA AI")
 
@@ -18,27 +21,26 @@ class VideoRequest(BaseModel):
     language: str = "English"
 
 
-def validate_youtube_url(url):
+def get_video_id(url):
     parsed = urlparse(str(url))
-    host = parsed.netloc.lower().split(":")[0]
+    host = (parsed.hostname or "").lower()
 
-    allowed_hosts = {
-        "youtube.com",
-        "www.youtube.com",
-        "m.youtube.com",
-        "youtu.be",
-        "www.youtube-nocookie.com",
-    }
+    if host in ["youtube.com", "www.youtube.com", "m.youtube.com"]:
+        video_id = parse_qs(parsed.query).get("v", [None])[0]
+    elif host == "youtu.be":
+        video_id = parsed.path.strip("/").split("/")[0]
+    else:
+        return None
 
-    return host in allowed_hosts
+    if video_id and len(video_id) == 11:
+        return video_id
+
+    return None
 
 
 @app.get("/")
 def home():
-    return {
-        "message": "CLIPORA AI Backend is running!",
-        "status": "success"
-    }
+    return {"message": "CLIPORA AI Backend is running!"}
 
 
 @app.get("/health")
@@ -46,19 +48,49 @@ def health():
     return {"status": "healthy"}
 
 
+@app.post("/video-info")
+def video_info(request: VideoRequest):
+    video_id = get_video_id(request.video_url)
+
+    if not video_id:
+        raise HTTPException(400, "Invalid YouTube video URL")
+
+    oembed_url = (
+        "https://www.youtube.com/oembed"
+        f"?url=https://www.youtube.com/watch?v={video_id}&format=json"
+    )
+
+    try:
+        with urlopen(oembed_url, timeout=15) as response:
+            data = json.loads(response.read().decode("utf-8"))
+
+        return {
+            "status": "success",
+            "video_id": video_id,
+            "title": data.get("title"),
+            "channel": data.get("author_name"),
+            "thumbnail": data.get("thumbnail_url"),
+            "message": "Video information retrieved successfully."
+        }
+
+    except (HTTPError, URLError, TimeoutError):
+        raise HTTPException(
+            404,
+            "Video information unavailable. Check the link and video visibility."
+        )
+
+
 @app.post("/process")
 def process_video(request: VideoRequest):
+    video_id = get_video_id(request.video_url)
 
-    if not validate_youtube_url(str(request.video_url)):
-        return {
-            "status": "error",
-            "message": "Please enter a valid YouTube URL."
-        }
+    if not video_id:
+        raise HTTPException(400, "Please enter a valid YouTube URL")
 
     return {
         "status": "accepted",
-        "video_url": str(request.video_url),
+        "video_id": video_id,
         "clip_length": request.clip_length,
         "language": request.language,
-        "message": "YouTube link validated. Authorized video access is the next step."
-}
+        "message": "Video link accepted. Processing engine is not ready yet."
+    }
