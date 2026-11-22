@@ -67,9 +67,9 @@ def video_info(request: VideoRequest):
         return {
             "status": "success",
             "video_id": video_id,
-            "title": data.get("title"),
-            "channel": data.get("author_name"),
-            "thumbnail": data.get("thumbnail_url"),
+            "title": data.get("title") or "Title unavailable",
+            "channel": data.get("author_name") or "Channel unavailable",
+            "thumbnail": data.get("thumbnail_url") or None,
             "message": "Video information retrieved successfully."
     }
 
