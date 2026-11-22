@@ -63,7 +63,7 @@ def video_info(request: VideoRequest):
     try:
         with urlopen(oembed_url, timeout=15) as response:
             data = json.loads(response.read().decode("utf-8"))
-           print("YOUTUBE DATA:", data)
+           
         return {
             "status": "success",
             "video_id": video_id,
