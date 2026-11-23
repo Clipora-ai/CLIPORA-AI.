@@ -63,7 +63,7 @@ def video_info(request: VideoRequest):
     try:
         with urlopen(oembed_url, timeout=15) as response:
             data = json.loads(response.read().decode("utf-8"))
-                               iframe_html = str(data.get("html") or "")
+                                iframe_html = str(data.get("html") or "")
         title_match = re.search(r'<iframe[^>]*\btitle="([^"]+)"', iframe_html)
         video_title = title_match.group(1) if title_match else "Title unavailable"
         return {
@@ -77,8 +77,7 @@ def video_info(request: VideoRequest):
 
     except (HTTPError, URLError, TimeoutError):
         raise HTTPException(
-            404,
-            "Video information unavailable. Check the link and video visibility."
+            404,Video information unavailable. Check the link and video visibility."
         )
 
 
