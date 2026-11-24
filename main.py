@@ -75,7 +75,7 @@ def video_info(request: VideoRequest):
             "message": "Video information retrieved successfully."
     }
 
-        except (HTTPError, URLError, TimeoutError):
+     except (HTTPError, URLError, TimeoutError):
         raise HTTPException(
             404,
             "Video information unavailable. Check the link and video visibility."
