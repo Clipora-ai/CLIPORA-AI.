@@ -60,7 +60,7 @@ def video_info(request: VideoRequest):
         f"?url=https://www.youtube.com/watch?v={video_id}&format=json"
     )
 
-    try:
+     try:
         with urlopen(oembed_url, timeout=15) as response:
             data = json.loads(response.read().decode("utf-8"))
         iframe_html = str(data.get("html") or "")
@@ -75,7 +75,7 @@ def video_info(request: VideoRequest):
             "message": "Video information retrieved successfully."
     }
 
-    except (HTTPError, URLError, TimeoutError):
+     except (HTTPError, URLError, TimeoutError):
         raise HTTPException(
             404,
             "Video information unavailable. Check the link and video visibility."
